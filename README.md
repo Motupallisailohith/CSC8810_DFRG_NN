@@ -89,16 +89,16 @@ flowchart TD
 ### Complete Message Passing Architecture (Mermaid + Math)
 ```mermaid
 flowchart TD
-   subgraph Inputs[📚 Input Graph]
-      X[🧾 Node features x^(l)]
-      E[🔗 Edge index E]
-      D[📏 Degree terms d_i and d_j]
+   subgraph Inputs["Input Graph"]
+      X["Node features x^(l)"]
+      E["Edge index E"]
+      D["Degree terms d_i and d_j"]
    end
 
-   subgraph FuzzyProj[🧠 Fuzzy Linear Parameterization]
-      MU0[mu_tilde = x^(l) W_mu + b_mu]
-      SG0[sigma_tilde = |x^(l)| |W_sigma| + sigma^(l) |W_mu| + b_sigma]
-      P[🎛️ Learnable params:<br/>W_mu, b_mu, W_sigma, b_sigma]
+   subgraph FuzzyProj["Fuzzy Linear Parameterization"]
+      MU0["mu_tilde = x^(l) W_mu + b_mu"]
+      SG0["sigma_tilde = abs(x^(l)) abs(W_sigma) + sigma^(l) abs(W_mu) + b_sigma"]
+      P["Learnable params: W_mu, b_mu, W_sigma, b_sigma"]
    end
 
    X --> MU0
@@ -106,10 +106,10 @@ flowchart TD
    P --> MU0
    P --> SG0
 
-   subgraph Message[📨 Message Construction]
-      A[alpha_ij = (d_i d_j)^(-1/2)]
-      M1[m_ij^mu = alpha_ij * mu_tilde_j]
-      M2[m_ij^sigma = alpha_ij * sigma_tilde_j]
+   subgraph Message["Message Construction"]
+      A["alpha_ij = (d_i d_j)^(-1/2)"]
+      M1["m_ij_mu = alpha_ij * mu_tilde_j"]
+      M2["m_ij_sigma = alpha_ij * sigma_tilde_j"]
    end
 
    E --> A
@@ -119,18 +119,18 @@ flowchart TD
    A --> M1
    A --> M2
 
-   subgraph Aggregate[📥 Neighborhood Aggregation]
-      U1[mu_i^(l+1) = sum over j in N(i) of m_ij^mu]
-      U2[sigma_i^(l+1) = sum over j in N(i) of m_ij^sigma]
+   subgraph Aggregate["Neighborhood Aggregation"]
+      U1["mu_i^(l+1) = sum over j in N(i) of m_ij_mu"]
+      U2["sigma_i^(l+1) = sum over j in N(i) of m_ij_sigma"]
    end
 
    M1 --> U1
    M2 --> U2
 
-   subgraph Post[⚙️ Post-Processing]
-      ACT1[mu_i = ReLU(mu_i^(l+1))]
-      ACT2[sigma_i = clamp(ReLU(sigma_i^(l+1)), 0, 5)]
-      DROP[🎲 Dropout on mu_i and sigma_i]
+   subgraph Post["Post-Processing"]
+      ACT1["mu_i = ReLU(mu_i^(l+1))"]
+      ACT2["sigma_i = clamp(ReLU(sigma_i^(l+1)), 0, 5)"]
+      DROP["Dropout on mu_i and sigma_i"]
    end
 
    U1 --> ACT1
@@ -138,10 +138,10 @@ flowchart TD
    ACT1 --> DROP
    ACT2 --> DROP
 
-   subgraph Rough[🪨 Optional Rough-Set Uncertainty]
-      LOW[lower_i = min over j in N(i) of h_j]
-      UP[upper_i = max over j in N(i) of h_j]
-      UNC[u_i = L2_norm(upper_i - lower_i)]
+   subgraph Rough["Optional Rough-Set Uncertainty"]
+      LOW["lower_i = min over j in N(i) of h_j"]
+      UP["upper_i = max over j in N(i) of h_j"]
+      UNC["u_i = L2_norm(upper_i - lower_i)"]
    end
 
    DROP --> LOW
@@ -149,10 +149,10 @@ flowchart TD
    LOW --> UNC
    UP --> UNC
 
-   subgraph Output[🎯 Defuzzification and Prediction]
-      DEF[z_i = mu_i / (1 + sigma_i) or z_i = mu_i]
-      CLS[p_i = log softmax(W_c z_i + b_c)]
-      LOSS[L = -sum over i in train of log p_i[y_i]]
+   subgraph Output["Defuzzification and Prediction"]
+      DEF["z_i = mu_i / (1 + sigma_i) or z_i = mu_i"]
+      CLS["p_i = log softmax(W_c z_i + b_c)"]
+      LOSS["L = -sum over i in train of log p_i of y_i"]
    end
 
    DROP --> DEF
@@ -160,7 +160,7 @@ flowchart TD
    DEF --> CLS
    CLS --> LOSS
 
-   LOSS --> BP[🔁 Backpropagation + Adam update]
+   LOSS --> BP["Backpropagation + Adam update"]
    BP --> P
 ```
 
